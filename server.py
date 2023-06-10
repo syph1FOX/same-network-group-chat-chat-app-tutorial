@@ -32,8 +32,13 @@ class Server(object):
 
             if(response == DB_CheckAccountResponse.OK):
                 print("[INFO]Login success")
+                msg = "connection success"
+                connection.send(msg.encode())
             else:
                 print("[INFO]Login error")
+                msg = "connection failed"
+                connection.send(msg.encode())
+                connection.close()
                 continue
             
             self.clients[login] = connection

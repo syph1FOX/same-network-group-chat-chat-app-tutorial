@@ -24,6 +24,7 @@ class ReceiveThread(QtCore.QThread):
 
         print(message)
         self.signal.emit(message)
+        return message
 
 
 class Client(object):
@@ -48,6 +49,7 @@ class Client(object):
         self.mainWindow.show()
 
         self.tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connection_thread = ReceiveThread(self.tcp_client)
 
         
     def btn_connect_clicked(self):
@@ -79,8 +81,9 @@ class Client(object):
             self.recv_thread = ReceiveThread(self.tcp_client)
             self.recv_thread.signal.connect(self.show_message)
             self.recv_thread.start()
-            print("[INFO] recv thread started")
 
+            print("[INFO] recv thread started")
+ 
 
     def show_message(self, message):
         self.chat_ui.textBrowser.append(message)
@@ -89,12 +92,19 @@ class Client(object):
     def connect(self, host, port, login:str, password:str):
 
         try:
+            connection_thread = ReceiveThread(self.tcp_client)
+            connection_thread.start()
             self.tcp_client.connect((host, port))
             self.tcp_client.send(login.encode() + " ".encode() +  password.encode())
+            if connection_thread.receive_message == "connection_success":
 
-            print("[INFO] Connected to server")
+                print("[INFO] Connected to server")
 
-            return True
+                return True
+            else:
+                self.tcp_client.close()
+                return False
+
         except Exception as e:
             error = "Unable to connect to server \n'{}'".format(str(e))
             print("[INFO]", error)
