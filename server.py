@@ -26,8 +26,10 @@ class Server(object):
 
             login, password = data.split(" ")
 
-            response = self.db.check_account(self.db, username=login, entered_password=password)
-            print(response)
+            print(login + " " + password)
+
+            response = self.db.check_account(entered_password=password, username=login)
+
             if(response == DB_CheckAccountResponse.OK):
                 print("[INFO]Login success")
             else:
