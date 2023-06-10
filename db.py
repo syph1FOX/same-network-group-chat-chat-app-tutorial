@@ -19,10 +19,10 @@ class DB_CheckAccountResponse(Enum):
 class AccountsDB():
     
     __database = None
-    def __new__(self, cls) -> Self:
+    def __new__(self) -> Self:
         if self.__database is None:
             self.__database = create_client(url,key)
-        return super().__new__(cls)
+        return self
 
     @property
     def DB(self) -> Client:

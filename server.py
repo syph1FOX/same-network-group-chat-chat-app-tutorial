@@ -15,18 +15,31 @@ class Server(object):
         self.tcp_server.bind((hostname, port))
         self.tcp_server.listen(5)
 
+        self.db = AccountsDB()
+
         print("[INFO] Server running on {}:{}".format(hostname, port))
 
         while True:
             connection, address = self.tcp_server.accept()
-            nickname = connection.recv(1024)
-            nickname = nickname.decode()
-            self.clients[nickname] = connection
+            data = connection.recv(1024)
+            data = data.decode()
+
+            login, password = data.split(" ")
+
+            response = self.db.check_account(self.db, username=login, entered_password=password)
+            print(response)
+            if(response == DB_CheckAccountResponse.OK):
+                print("[INFO]Login success")
+            else:
+                print("[INFO]Login error")
+                continue
+            
+            self.clients[login] = connection
 
             # start a thread for the client
-            threading.Thread(target=self.receive_message, args=(connection, nickname), daemon=True).start()
+            threading.Thread(target=self.receive_message, args=(connection, login), daemon=True).start()
 
-            print("[INFO] Connection from {}:{} AKA {}".format(address[0], address[1], nickname))
+            print("[INFO] Connection from {}:{} AKA {}".format(address[0], address[1], login))
 
 
     def receive_message(self, connection, nickname):

@@ -51,8 +51,9 @@ class Client(object):
 
         
     def btn_connect_clicked(self):
-        host = self.connect_ui.hostTextEdit.toPlainText()
-        port = self.connect_ui.portTextEdit.toPlainText()
+        host = port = ""
+        login = self.connect_ui.hostTextEdit.toPlainText()
+        password = self.connect_ui.portTextEdit.toPlainText()
         nickname = self.connect_ui.nameTextEdit.toPlainText()
 
         if len(host) == 0:
@@ -71,9 +72,7 @@ class Client(object):
         if len(nickname) < 1:
             nickname = socket.gethostname()
 
-        nickname = nickname + "_" + str(random.randint(1, port))
-
-        if self.connect(host, port, nickname):
+        if self.connect(host, port, login=login, password=password):
             self.connectWidget.setHidden(True)
             self.chatWidget.setVisible(True)
 
@@ -87,11 +86,11 @@ class Client(object):
         self.chat_ui.textBrowser.append(message)
         
 
-    def connect(self, host, port, nickname):
+    def connect(self, host, port, login:str, password:str):
 
         try:
             self.tcp_client.connect((host, port))
-            self.tcp_client.send(nickname.encode())
+            self.tcp_client.send(login.encode() + " ".encode() +  password.encode())
 
             print("[INFO] Connected to server")
 
