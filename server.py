@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from db import *
+
 class Server(object):
     def __init__(self, hostname, port):
         self.clients = {}
